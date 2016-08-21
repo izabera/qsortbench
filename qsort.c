@@ -7,7 +7,14 @@
 
 /* mine */
 
-static void swap(void *a, void *b, size_t size) {
+static inline void swap(void *a, void *b, size_t size) {
+  uint8_t u8; uint16_t u16; uint32_t u32; uint64_t u64;
+  switch (size) {
+    case 1:  u8 = *( uint8_t*)a; *( uint8_t*)a = *( uint8_t*)b; *( uint8_t*)b =  u8; return;
+    case 2: u16 = *(uint16_t*)a; *(uint16_t*)a = *(uint16_t*)b; *(uint16_t*)b = u16; return;
+    case 4: u32 = *(uint32_t*)a; *(uint32_t*)a = *(uint32_t*)b; *(uint32_t*)b = u32; return;
+    case 8: u64 = *(uint64_t*)a; *(uint64_t*)a = *(uint64_t*)b; *(uint64_t*)b = u64; return;
+  }
 #define min(a, b) ((a) < (b) ? (a) : (b))
   for (char tmp[256]; size; size -= min(size, sizeof(tmp))) {
     memcpy(tmp, a, min(size, sizeof(tmp)));
@@ -628,6 +635,14 @@ void fifty_percent(uint32_t *array, size_t nums) {
   for (size_t i = 0; i < nums/2; i++) array[2*i] = i, array[2*i+1] = pcg32_random_r(&r);
 }
 
+void triangle(uint32_t *array, size_t nums) {
+  for (size_t i = 0; i < nums; i++) array[i] = i % ((nums % 100)+1);
+}
+
+void allequal(uint32_t *array, size_t nums) {
+  for (size_t i = 0; i < nums; i++) array[i] = 123456789;
+}
+
 struct score {
   int idx;
   double time;
@@ -643,6 +658,7 @@ struct qs {
   sorttype q;
   char *name;
   int final_score;
+  double total_time;
 };
 
 int leadersort(const void *elem1, const void *elem2) {
@@ -678,6 +694,8 @@ int main(int argc, char *argv[]) {
     {     one_percent, "1% ouf of order" },
     { one_percent_nsz, "1% the nsz way"  },
     {   fifty_percent, "50% sorted"      },
+    {        triangle, "triangle"        },
+    {        allequal, "all equal"       },
   };
 
 
@@ -692,6 +710,7 @@ int main(int argc, char *argv[]) {
       scores[j].time = (double) (t2.tv_sec  - t1.tv_sec) + (double) (t2.tv_usec - t1.tv_usec) / 1000000;
       scores[j].idx = j;
       printf("%10s %12.6f\n", qsorts[j].name, scores[j].time);
+      qsorts[scores[j].idx].total_time += scores[j].time;
     }
     qsort(scores, sizeof(scores)/sizeof(scores[0]), sizeof(scores[0]), scoresort);
     for (size_t j = 0; j < sizeof(qsorts)/sizeof(qsorts[0]); j++) {
@@ -704,7 +723,7 @@ int main(int argc, char *argv[]) {
   puts("leaderboard");
   qsort(qsorts, sizeof(qsorts)/sizeof(qsorts[0]), sizeof(qsorts[0]), leadersort);
   for (size_t j = 0; j < sizeof(qsorts)/sizeof(qsorts[0]); j++)
-    printf("%zu. %s\n", j+1, qsorts[j].name);
+    printf("%zu. %-10s (total: %12.6f)\n", j+1, qsorts[j].name, qsorts[j].total_time);
 
   return 0;
 }
