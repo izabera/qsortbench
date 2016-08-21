@@ -9,5 +9,5 @@ LDFLAGS = -flto
 
 all: bench
 
-bench: uclibc.o plan9.o mine.o musl.o diet.o bsd.o qsort.c Makefile
+bench: klibc.o illumos.o uclibc.o plan9.o mine.o musl.o diet.o bsd.o qsort.c Makefile
 	$(CC) $(CFLAGS) $(LDFLAGS) qsort.c *.o -o qsort

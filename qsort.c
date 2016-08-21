@@ -9,6 +9,8 @@
 
 void bsd_qsort(void *base, size_t nmemb, size_t size, int (*compar)(const void *, const void *));
 void diet_qsort(void *base, size_t nmemb, size_t size, int (*compar)(const void *, const void *));
+void illumos_qsort(void *base, size_t nmemb, size_t size, int (*compar)(const void *, const void *));
+void klibc_qsort(void *base, size_t nmemb, size_t size, int (*compar)(const void *, const void *));
 void musl_qsort(void *base, size_t nmemb, size_t size, int (*compar)(const void *, const void *));
 void my_qsort(void *base, size_t nmemb, size_t size, int (*compar)(const void *, const void *));
 void plan9_qsort(void *base, size_t nmemb, size_t size, int (*compar)(const void *, const void *));
@@ -124,13 +126,15 @@ int main(int argc, char *argv[]) {
   typedef void (*shuftype)(uint32_t *, size_t);
 
   struct qs qsorts[] = {
-    {        qsort, "glibc" , 0, 0 },
-    {   musl_qsort, "musl"  , 0, 0 },
-    {   diet_qsort, "diet"  , 0, 0 },
-    {    bsd_qsort, "bsd"   , 0, 0 },
-    { uclibc_qsort, "uclibc", 0, 0 },
-    {  plan9_qsort, "plan9" , 0, 0 },
-    {     my_qsort, "mine"  , 0, 0 },
+    {         qsort, "glibc"  , 0, 0 },
+    {    musl_qsort, "musl"   , 0, 0 },
+    {    diet_qsort, "diet"   , 0, 0 },
+    {     bsd_qsort, "bsd"    , 0, 0 },
+    {  uclibc_qsort, "uclibc" , 0, 0 },
+    {   plan9_qsort, "plan9"  , 0, 0 },
+    { illumos_qsort, "illumos", 0, 0 },
+    {   klibc_qsort, "klibc"  , 0, 0 },
+    {      my_qsort, "mine"   , 0, 0 },
   };
 
   struct {
