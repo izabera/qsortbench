@@ -566,7 +566,7 @@ void uclibc_qsort(void  *base,
 
 static int cmp(const void *n1, const void *n2) {
   uint32_t *a = (uint32_t *)n1, *b = (uint32_t *)n2;
-  return *a - *b;
+  return (*a > *b) - (*a < *b);
 }
 
 #include <sys/time.h>
