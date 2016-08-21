@@ -4,10 +4,13 @@ LDFLAGS = -flto
 
 .PHONY: all
 
-%.o: %.c
-	$(CC) $(CFLAGS) -c -o $@ $<
+#%.o: %.c
+	#$(CC) $(CFLAGS) -c -o $@ $<
 
-all: bench
+#all: bench
 
-bench: klibc.o illumos.o uclibc.o plan9.o mine.o musl.o diet.o bsd.o qsort.c Makefile
-	$(CC) $(CFLAGS) $(LDFLAGS) qsort.c *.o -o qsort
+#bench: klibc.o illumos.o uclibc.o plan9.o mine.o musl.o diet.o bsd.o qsort.c Makefile
+	#$(CC) $(CFLAGS) $(LDFLAGS) qsort.c *.o -o qsort
+
+all:
+	$(CC) $(CFLAGS) $(LDFLAGS) *.c -o qsort -fwhole-program
