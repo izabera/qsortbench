@@ -610,6 +610,18 @@ void one_percent(uint32_t *array, size_t nums) {
   for (size_t i = 0; i < nums / 100; i++) array[pcg32_random_r(&r)%nums] = pcg32_random_r(&r);
 }
 
+void one_percent_nsz(uint32_t *array, size_t nums) {
+  pcg32_random_t r;
+  memcpy(&r, &start, sizeof(pcg32_random_t));
+  for (size_t i = 0; i < nums; i++) array[i] = i;
+  for (size_t i = 0; i < nums / 200; i++) {
+    uint32_t idx1 = pcg32_random_r(&r) % nums, idx2 = pcg32_random_r(&r) % nums, tmp;
+    tmp = array[idx1];
+    array[idx1] = array[idx2];
+    array[idx2] = tmp;
+  }
+}
+
 void fifty_percent(uint32_t *array, size_t nums) {
   pcg32_random_t r;
   memcpy(&r, &start, sizeof(pcg32_random_t));
@@ -664,6 +676,7 @@ int main(int argc, char *argv[]) {
     {          sorted, "sorted"          },
     {         reverse, "reverse"         },
     {     one_percent, "1% ouf of order" },
+    { one_percent_nsz, "1% the nsz way"  },
     {   fifty_percent, "50% sorted"      },
   };
 
