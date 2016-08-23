@@ -25,7 +25,6 @@ static inline void swap(void *a, void *b, size_t size) {
 #define swap(a, b) swap(a, b, size)
 #define cmp(a, b) (f1 ? f1(&a, &b) : f2(&a, &b, arg))
 
-#if 1
 static void sift_down(void *base, size_t size, size_t top, size_t bottom,
     int (*f1)(const void *, const void *),
     int (*f2)(const void *, const void *, void *),
@@ -41,7 +40,6 @@ static void sift_down(void *base, size_t size, size_t top, size_t bottom,
     swap(&array[child], &array[top]);
   }
 }
-#endif
 
 // sort3 from pdqsort
 static inline void sort3(size_t a, size_t b, size_t c, void *base, size_t size, 
@@ -90,7 +88,7 @@ static void actual_qsort(void *base, size_t nmemb, size_t size, size_t recur,
       return;
     }
 
-    // switch to heap sort if recursion is too deep and pivot is too unbalanced
+    // switch to heap sort if recursion is too deep
     if (!recur) {
 #define sift_down(arr, top, bottom) sift_down(arr, size, top, bottom, f1, f2, arg)
       for (ssize_t top = (nmemb-2) / 2; top >= 0; top--) // signed
@@ -104,7 +102,7 @@ static void actual_qsort(void *base, size_t nmemb, size_t size, size_t recur,
 
     // recursive quicksort (todo: 3 way)
     sort3(0, nmemb/2, nmemb-1, array, size, f1, f2, arg);
-    memmove(&pivot, &array[nmemb/2], size);
+    memcpy(pivot, array[nmemb/2], size);
 
     // hoare partition
     for (i = 0, j = nmemb - 1; ; i++, j--) {
@@ -114,9 +112,16 @@ static void actual_qsort(void *base, size_t nmemb, size_t size, size_t recur,
       swap(&array[i], &array[j]);
     }
 
-    actual_qsort(array, i, size, --recur, f1, f2, arg);
-    array += i;
-    nmemb -= i;
+    // recursion in the smallest partition => O(log n) space
+    if (i > size / 2) {
+      actual_qsort(array+i, nmemb-i, size, --recur, f1, f2, arg);
+      nmemb = i;
+    }
+    else {
+      actual_qsort(array, i, size, --recur, f1, f2, arg);
+      array += i;
+      nmemb -= i;
+    }
   }
 
 }
