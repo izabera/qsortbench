@@ -41,30 +41,10 @@ static void sift_down(void *base, size_t size, size_t top, size_t bottom,
   }
 }
 
-// sort3 from pdqsort
-static inline void sort3(size_t a, size_t b, size_t c, void *base, size_t size, 
-    int (*f1)(const void *, const void *),
-    int (*f2)(const void *, const void *, void *),
-    void *arg) {
-
-  typedef char type[size];
-  type *array = base;
-
-  if (!cmp(array[b], array[a])) {
-    if (!cmp(array[c], array[b])) return;
-    swap(&array[b], &array[c]);
-    if (cmp(array[b], array[a])) swap(&array[a], &array[b]);
-    return;
-  }
-
-  if (cmp(array[c], array[b])) {
-    swap(&array[a], &array[c]);
-    return;
-  }
-
-  swap(&array[a], &array[b]);
-  if (cmp(array[c], array[b])) swap(&array[b], &array[b]);
-}
+#define SWAP(a, b) do { if (cmp(array[a], array[b]) > 0) swap(&array[a], &array[b]); } while (0)
+#define sort2(a, b)       do { SWAP(a, b);                                                 } while (0)
+#define sort3(a, b, c)    do { SWAP(b, c); SWAP(a, c); SWAP(a, b);                         } while (0)
+#define sort4(a, b, c, d) do { SWAP(a, b); SWAP(c, d); SWAP(a, c); SWAP(b, d); SWAP(b, c); } while (0)
 
 static void actual_qsort(void *base, size_t nmemb, size_t size, size_t recur,
     int (*f1)(const void *, const void *),
@@ -76,18 +56,7 @@ static void actual_qsort(void *base, size_t nmemb, size_t size, size_t recur,
   size_t i, j;
 
   // introsort
-  while (nmemb > 1) {
-    if (nmemb == 2) {
-      if (cmp(array[0], array[1]) > 0) swap(&array[0], &array[1]);
-      return;
-    }
-    if (nmemb < 10) { // insertion sort
-      for (i = 1; i < nmemb; i++)
-        for (j = i; j > 0 && cmp(array[j-1], array[j]) > 0; j--)
-          swap(&array[j-1], &array[j]);
-      return;
-    }
-
+  while (nmemb > 10) {
     // switch to heap sort if recursion is too deep
     if (!recur) {
 #define sift_down(arr, top, bottom) sift_down(arr, size, top, bottom, f1, f2, arg)
@@ -101,7 +70,7 @@ static void actual_qsort(void *base, size_t nmemb, size_t size, size_t recur,
     }
 
     // recursive quicksort (todo: 3 way)
-    sort3(0, nmemb/2, nmemb-1, array, size, f1, f2, arg);
+    sort3(0, nmemb/2, nmemb-1);
     memcpy(pivot, array[nmemb/2], size);
 
     // hoare partition
@@ -124,6 +93,17 @@ static void actual_qsort(void *base, size_t nmemb, size_t size, size_t recur,
     }
   }
 
+  // final pass with small arrays
+  switch (nmemb) {
+    case 1: return;
+    case 2: sort2(0, 1); return;
+    case 3: sort3(0, 1, 2); return;
+    case 4: sort4(0, 1, 2, 3); return;
+  }
+  // insertion sort up to 10
+  for (i = 1; i < nmemb; i++)
+    for (j = i; j > 0 && cmp(array[j-1], array[j]) > 0; j--)
+      swap(&array[j-1], &array[j]);
 }
 
 #undef swap

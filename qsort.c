@@ -15,6 +15,7 @@ void musl_qsort(void *base, size_t nmemb, size_t size, int (*compar)(const void 
 void my_qsort(void *base, size_t nmemb, size_t size, int (*compar)(const void *, const void *));
 void plan9_qsort(void *base, size_t nmemb, size_t size, int (*compar)(const void *, const void *));
 void uclibc_qsort(void *base, size_t nmemb, size_t size, int (*compar)(const void *, const void *));
+void sortix_qsort(void *base, size_t nmemb, size_t size, int (*compar)(const void *, const void *));
 
 
 
@@ -133,6 +134,7 @@ int main(int argc, char *argv[]) {
     {  uclibc_qsort, "uclibc" , 0, 0 },
     {   plan9_qsort, "plan9"  , 0, 0 },
     { illumos_qsort, "illumos", 0, 0 },
+    /*{  sortix_qsort, "sortix" , 0, 0 },*/  // quadratic time on triangle and all equal
     /*{   klibc_qsort, "klibc"  , 0, 0 },*/  // quadratic time on 50% sorted input
     {      my_qsort, "mine"   , 0, 0 },
   };
