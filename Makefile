@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -Ofast -march=native -Wall -Wextra
+CFLAGS = -Ofast -march=native -Wall -Wextra -std=c11
 LDFLAGS = -flto
 
 .PHONY: all
