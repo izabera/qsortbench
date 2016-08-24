@@ -4,6 +4,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <inttypes.h>
 
 
 
@@ -16,6 +17,8 @@ void my_qsort(void *base, size_t nmemb, size_t size, int (*compar)(const void *,
 void plan9_qsort(void *base, size_t nmemb, size_t size, int (*compar)(const void *, const void *));
 void uclibc_qsort(void *base, size_t nmemb, size_t size, int (*compar)(const void *, const void *));
 void sortix_qsort(void *base, size_t nmemb, size_t size, int (*compar)(const void *, const void *));
+void glibc_qsort(void *base, size_t nmemb, size_t size, int (*compar)(const void *, const void *));
+void wada_qsort(void *base, size_t nmemb, size_t size, int (*compar)(const void *, const void *));
 
 
 
@@ -95,6 +98,10 @@ void allequal(uint32_t *array, size_t nums) {
   for (size_t i = 0; i < nums; i++) array[i] = 123456789;
 }
 
+void flag(uint32_t *array, size_t nums) {
+  for (size_t i = 0; i < nums; i++) array[i] = i % 3;
+}
+
 struct score {
   int idx;
   double time;
@@ -121,19 +128,24 @@ int leadersort(const void *elem1, const void *elem2) {
 int main(int argc, char *argv[]) {
   uint32_t nums = argc > 1 ? strtoul(argv[1], NULL, 10) : 10000000;
   uint32_t *array = malloc(nums * sizeof(uint32_t));
+#if check
+  uint32_t *ref   = malloc(nums * sizeof(uint32_t));
+#endif
   for (size_t i = 0; i < nums; i++) array[i] = 7;
   struct timeval t1, t2;
 
   typedef void (*shuftype)(uint32_t *, size_t);
 
   struct qs qsorts[] = {
-    {         qsort, "glibc"  , 0, 0 },
+    {         qsort, "system" , 0, 0 },
+    {   glibc_qsort, "glibc"  , 0, 0 },
     {    musl_qsort, "musl"   , 0, 0 },
     {    diet_qsort, "diet"   , 0, 0 },
     {     bsd_qsort, "bsd"    , 0, 0 },
     {  uclibc_qsort, "uclibc" , 0, 0 },
     {   plan9_qsort, "plan9"  , 0, 0 },
     { illumos_qsort, "illumos", 0, 0 },
+    {    wada_qsort, "wada"   , 0, 0 },
     /*{  sortix_qsort, "sortix" , 0, 0 },*/  // quadratic time on triangle and all equal
     /*{   klibc_qsort, "klibc"  , 0, 0 },*/  // quadratic time on 50% sorted input
     {      my_qsort, "mine"   , 0, 0 },
@@ -152,17 +164,30 @@ int main(int argc, char *argv[]) {
     {   fifty_percent, "50% sorted"      },
     {        triangle, "triangle"        },
     {        allequal, "all equal"       },
+    {            flag, "dutch flag"      },
   };
 
 
   struct score scores[sizeof(qsorts)/sizeof(qsorts[0])];
   for (size_t i = 0; i < sizeof(shufs)/sizeof(shufs[0]); i++) {
     puts(shufs[i].desc);
+#if check
+    shufs[i].s(ref, nums);
+    qsort(ref, nums, sizeof(int), cmp);
+#endif
     for (size_t j = 0; j < sizeof(qsorts)/sizeof(qsorts[0]); j++) {
       shufs[i].s(array, nums);
       gettimeofday(&t1, NULL);
       qsorts[j].q(array, nums, sizeof(int), cmp);
       gettimeofday(&t2, NULL);
+#if check
+      for (size_t i = 0; i < nums; i++)
+        if (array[i] != ref[i]) {
+          printf("array[%zu] == %" PRIu32 " ref[%zu] == %" PRIu32 "\n",
+              i, array[i], i, ref[i]);
+          break;
+        }
+#endif
       scores[j].time = (double) (t2.tv_sec  - t1.tv_sec) + (double) (t2.tv_usec - t1.tv_usec) / 1000000;
       scores[j].idx = j;
       printf("%10s %12.6f\n", qsorts[j].name, scores[j].time);
@@ -179,7 +204,7 @@ int main(int argc, char *argv[]) {
   puts("leaderboard");
   qsort(qsorts, sizeof(qsorts)/sizeof(qsorts[0]), sizeof(qsorts[0]), leadersort);
   for (size_t j = 0; j < sizeof(qsorts)/sizeof(qsorts[0]); j++)
-    printf("%zu. %-10s (total: %12.6f)\n", j+1, qsorts[j].name, qsorts[j].total_time);
+    printf("%2zu. %-10s (total: %12.6f)\n", j+1, qsorts[j].name, qsorts[j].total_time);
 
   return 0;
 }

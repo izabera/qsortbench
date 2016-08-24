@@ -52,7 +52,7 @@ static void actual_qsort(void *base, size_t nmemb, size_t size, size_t recur,
     void *arg) {
 
   typedef char type[size];
-  type *array = base, pivot;
+  type *array = base, *pivot;
   size_t i, j;
 
   // introsort
@@ -70,13 +70,13 @@ static void actual_qsort(void *base, size_t nmemb, size_t size, size_t recur,
     }
 
     // recursive quicksort (todo: 3 way)
-    sort3(0, nmemb/2, nmemb-1);
-    memcpy(pivot, array[nmemb/2], size);
+    sort3(0, nmemb-1, nmemb/2); // puts middle in array[nmemb-1]
+    pivot = &array[nmemb-1];
 
     // hoare partition
     for (i = 0, j = nmemb - 1; ; i++, j--) {
-      while (cmp(array[i], pivot) < 0) i++;
-      while (cmp(array[j], pivot) > 0) j--;
+      while (cmp(array[i], *pivot) < 0) i++;
+      while (cmp(array[j], *pivot) > 0) j--;
       if (i >= j) break;
       swap(&array[i], &array[j]);
     }
@@ -95,14 +95,14 @@ static void actual_qsort(void *base, size_t nmemb, size_t size, size_t recur,
 
   // final pass with small arrays
   switch (nmemb) {
-    case 1: return;
-    case 2: sort2(0, 1); return;
-    case 3: sort3(0, 1, 2); return;
+    case 0: case 1:            return;
+    case 2: sort2(0, 1      ); return;
+    case 3: sort3(0, 1, 2   ); return;
     case 4: sort4(0, 1, 2, 3); return;
   }
   // insertion sort up to 10
-  for (i = 1; i < nmemb; i++)
-    for (j = i; j > 0 && cmp(array[j-1], array[j]) > 0; j--)
+  for (size_t i = 1; i < nmemb; i++)
+    for (size_t j = i; j > 0 && cmp(array[j-1], array[j]) > 0; j--)
       swap(&array[j-1], &array[j]);
 }
 
@@ -133,10 +133,10 @@ static int cmp(const void *n1, const void *n2) {
 #include <stdlib.h>
 int main() {
   /*srand(time(0));*/
-  int arr[100];
-  for (int i = 0; i < 100; i++) arr[i] = rand() % 1000;
-  my_qsort(arr, 100, sizeof(int), cmp);
-  for (int i = 0; i < 100; i++) printf("%d ", arr[i]);
+  int arr[] = { 3, 3, 3, 3, 2, 2, 2, 2, 1, 1, 1, 1 }, nelem = 12;
+  /*for (int i = 0; i < nelem; i++) arr[i] = rand() % 1000;*/
+  my_qsort(arr, nelem, sizeof(int), cmp);
+  for (int i = 0; i < nelem; i++) printf("%d ", arr[i]);
   putchar('\n');
   return 0;
 }
