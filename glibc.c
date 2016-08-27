@@ -1,5 +1,6 @@
 #define _GNU_SOURCE
 typedef int (*__compar_d_fn_t) (const void *, const void *, void *);
+typedef int (*__compar_fn_t) (const void *, const void *);
 #include <limits.h>
 #include <alloca.h>
 #define __mempcpy mempcpy
