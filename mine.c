@@ -56,7 +56,7 @@ static void sift_down(void *base, size_t size, size_t top, size_t bottom,
   }
 }
 
-void actual_qsort(void *base, size_t nmemb, size_t size, size_t recur,
+static void actual_qsort(void *base, size_t nmemb, size_t size, size_t recur,
     int (*f1)(const void *, const void *),
     int (*f2)(const void *, const void *, void *),
     void *arg) {
