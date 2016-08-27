@@ -1,3 +1,4 @@
+#define _GNU_SOURCE
 #include <stdint.h>
 #include <signal.h>
 #include <sys/types.h>
@@ -8,17 +9,19 @@
 
 
 
-void bsd_qsort(void *base, size_t nmemb, size_t size, int (*compar)(const void *, const void *));
-void diet_qsort(void *base, size_t nmemb, size_t size, int (*compar)(const void *, const void *));
+void     bsd_qsort(void *base, size_t nmemb, size_t size, int (*compar)(const void *, const void *));
+void    diet_qsort(void *base, size_t nmemb, size_t size, int (*compar)(const void *, const void *));
 void illumos_qsort(void *base, size_t nmemb, size_t size, int (*compar)(const void *, const void *));
-void klibc_qsort(void *base, size_t nmemb, size_t size, int (*compar)(const void *, const void *));
-void musl_qsort(void *base, size_t nmemb, size_t size, int (*compar)(const void *, const void *));
-void my_qsort(void *base, size_t nmemb, size_t size, int (*compar)(const void *, const void *));
-void plan9_qsort(void *base, size_t nmemb, size_t size, int (*compar)(const void *, const void *));
-void uclibc_qsort(void *base, size_t nmemb, size_t size, int (*compar)(const void *, const void *));
-void sortix_qsort(void *base, size_t nmemb, size_t size, int (*compar)(const void *, const void *));
-void glibc_qsort(void *base, size_t nmemb, size_t size, int (*compar)(const void *, const void *));
-void wada_qsort(void *base, size_t nmemb, size_t size, int (*compar)(const void *, const void *));
+void   klibc_qsort(void *base, size_t nmemb, size_t size, int (*compar)(const void *, const void *));
+void    musl_qsort(void *base, size_t nmemb, size_t size, int (*compar)(const void *, const void *));
+void      my_qsort(void *base, size_t nmemb, size_t size, int (*compar)(const void *, const void *));
+void   plan9_qsort(void *base, size_t nmemb, size_t size, int (*compar)(const void *, const void *));
+void  uclibc_qsort(void *base, size_t nmemb, size_t size, int (*compar)(const void *, const void *));
+void  sortix_qsort(void *base, size_t nmemb, size_t size, int (*compar)(const void *, const void *));
+void   glibc_qsort(void *base, size_t nmemb, size_t size, int (*compar)(const void *, const void *));
+void    wada_qsort(void *base, size_t nmemb, size_t size, int (*compar)(const void *, const void *));
+void freebsd_qsort(void *base, size_t nmemb, size_t size, int (*compar)(const void *, const void *));
+void   linux_qsort(void *base, size_t nmemb, size_t size, int (*compar)(const void *, const void *));
 
 
 
@@ -32,6 +35,7 @@ static int cmp(const void *n1, const void *n2) {
 }
 
 #include <sys/time.h>
+#include <time.h>
 
 typedef struct { uint64_t state;  uint64_t inc; } pcg32_random_t;
 
@@ -132,7 +136,8 @@ int main(int argc, char *argv[]) {
   uint32_t *ref   = malloc(nums * sizeof(uint32_t));
 #endif
   for (size_t i = 0; i < nums; i++) array[i] = 7;
-  struct timeval t1, t2;
+  /*struct timeval t1, t2;*/
+  struct timespec ts1, ts2;
 
   typedef void (*shuftype)(uint32_t *, size_t);
 
@@ -146,6 +151,8 @@ int main(int argc, char *argv[]) {
     {   plan9_qsort, "plan9"  , 0, 0 },
     { illumos_qsort, "illumos", 0, 0 },
     {    wada_qsort, "wada"   , 0, 0 },
+    { freebsd_qsort, "freebsd", 0, 0 },
+    {   linux_qsort, "linux"  , 0, 0 },
     /*{  sortix_qsort, "sortix" , 0, 0 },*/  // quadratic time on triangle and all equal
     /*{   klibc_qsort, "klibc"  , 0, 0 },*/  // quadratic time on 50% sorted input
     {      my_qsort, "mine"   , 0, 0 },
@@ -177,9 +184,11 @@ int main(int argc, char *argv[]) {
 #endif
     for (size_t j = 0; j < sizeof(qsorts)/sizeof(qsorts[0]); j++) {
       shufs[i].s(array, nums);
-      gettimeofday(&t1, NULL);
+      clock_gettime(CLOCK_REALTIME, &ts1);
+      /*gettimeofday(&t1, NULL);*/
       qsorts[j].q(array, nums, sizeof(int), cmp);
-      gettimeofday(&t2, NULL);
+      clock_gettime(CLOCK_REALTIME, &ts2);
+      /*gettimeofday(&t2, NULL);*/
 #if check
       for (size_t i = 0; i < nums; i++)
         if (array[i] != ref[i]) {
@@ -188,7 +197,8 @@ int main(int argc, char *argv[]) {
           break;
         }
 #endif
-      scores[j].time = (double) (t2.tv_sec  - t1.tv_sec) + (double) (t2.tv_usec - t1.tv_usec) / 1000000;
+      /*scores[j].time = (double) (t2.tv_sec  - t1.tv_sec) + (double) (t2.tv_usec - t1.tv_usec) / 1000000;*/
+      scores[j].time = (double) (ts2.tv_sec  - ts1.tv_sec) + (double) (ts2.tv_nsec - ts1.tv_nsec) / 1000000000;
       scores[j].idx = j;
       printf("%10s %12.6f\n", qsorts[j].name, scores[j].time);
       qsorts[scores[j].idx].total_time += scores[j].time;
