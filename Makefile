@@ -1,6 +1,6 @@
 CC = gcc
-#CFLAGS = -Ofast -march=native -Wall -Wextra -std=c11 # -Dcheck=1
-CFLAGS = -Os -march=native -Wall -Wextra -std=c11 # -Dcheck=1
+CFLAGS = -Ofast -march=native -Wall -Wextra -std=c11 # -Dcheck=1
+#CFLAGS = -Os -march=native -Wall -Wextra -std=c11 # -Dcheck=1
 LDFLAGS = -flto
 
 .PHONY: all clean
