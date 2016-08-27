@@ -106,6 +106,31 @@ void flag(uint32_t *array, size_t nums) {
   for (size_t i = 0; i < nums; i++) array[i] = i % 3;
 }
 
+void even_odd(uint32_t *array, size_t nums) {
+  for (size_t i = 0; i < nums/2; i++) array[i] = 2*i;
+  for (size_t i = nums/2; i < nums; i++) array[i] = 2*(i-nums/2)+1;
+}
+
+void reven_odd(uint32_t *array, size_t nums) {
+  for (size_t i = 0; i < nums/2; i++) array[i] = nums-2*i;
+  for (size_t i = nums/2; i < nums; i++) array[i] = nums-2*(i-nums/2)+1;
+}
+
+void pipe_organ(uint32_t *array, size_t nums) {
+  for (size_t i = 0; i < nums/2; i++) array[i] = i;
+  for (size_t i = nums/2; i < nums; i++) array[i] = nums-i;
+}
+
+void push_front(uint32_t *array, size_t nums) {
+  for (size_t i = 0; i < nums-1; i++) array[i] = i+1;
+  array[nums-1] = 0;
+}
+
+void push_middle(uint32_t *array, size_t nums) {
+  for (size_t i = 0; i < nums-1; i++) array[i] = i+1;
+  array[nums-1] = nums/2;
+}
+
 struct score {
   int idx;
   double time;
@@ -172,6 +197,11 @@ int main(int argc, char *argv[]) {
     {        triangle, "triangle"        },
     {        allequal, "all equal"       },
     {            flag, "dutch flag"      },
+    {        even_odd, "even odd"        },
+    {       reven_odd, "rev even odd"    },
+    {      pipe_organ, "pipe organ"      },
+    {      push_front, "push front"      },
+    {     push_middle, "push middle"     },
   };
 
 
@@ -214,7 +244,8 @@ int main(int argc, char *argv[]) {
   puts("leaderboard");
   qsort(qsorts, sizeof(qsorts)/sizeof(qsorts[0]), sizeof(qsorts[0]), leadersort);
   for (size_t j = 0; j < sizeof(qsorts)/sizeof(qsorts[0]); j++)
-    printf("%2zu. %-10s (total: %12.6f)\n", j+1, qsorts[j].name, qsorts[j].total_time);
+    printf("%2zu. %-10s %12.6f %12.6f\n",
+        j+1, qsorts[j].name, qsorts[j].total_time, qsorts[j].total_time/qsorts[0].total_time);
 
   return 0;
 }

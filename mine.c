@@ -81,7 +81,9 @@ static void actual_qsort(void *base, size_t nmemb, size_t size, size_t recur,
       return;
     }
 
-    size_t l = 0, m = nmemb / 2, n = nmemb - 1;
+    // recursive 3 way quicksort
+    // largely adapted from "engineering a sort function"
+    size_t l = 0, m = nmemb / 2, n = nmemb - 1, med;
     if (nmemb > 40) {
       s = nmemb / 8;
       l = med3(l, l + s, l + 2 * s);
@@ -89,9 +91,7 @@ static void actual_qsort(void *base, size_t nmemb, size_t size, size_t recur,
       n = med3(n - 2 * s, n - s, n);
     }
 
-    // recursive 3 way quicksort
-    // largely adapted from "engineering a sort function"
-    swap(array, array[med3(l, m, n)]);
+    if ((med = med3(l, m, n))) swap(array[0], array[med]);
 
     size_t swaps = 0;
     for (a = b = 1, c = d = nmemb - 1; ; ) {
