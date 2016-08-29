@@ -25,17 +25,6 @@ static inline void fswap(void *a, void *b, size_t size) {
 #define swap(a, b) fswap(a, b, size)
 #define vecswap(a, b, n) 	if ((n) > 0) fswap(a, b, n)
 
-static inline void fcopy(void *a, void *b, size_t size) {
-  switch (size) {
-    case 1: *( uint8_t*)a = *( uint8_t*)b; return;
-    case 2: *(uint16_t*)a = *(uint16_t*)b; return;
-    case 4: *(uint32_t*)a = *(uint32_t*)b; return;
-    case 8: *(uint64_t*)a = *(uint64_t*)b; return;
-  }
-  memmove(a, b, size);
-}
-#define copy(a, b) fcopy(a, b, size)
-
 #define cmp(a, b) (f1 ? f1(a, b) : f2(a, b, arg))
 static inline size_t med3(void *base, size_t size, size_t a, size_t b, size_t c,
     int (*f1)(const void *, const void *),
@@ -134,24 +123,9 @@ static void actual_qsort(void *base, size_t nmemb, size_t size, size_t recur,
   }
 
   // final pass with small arrays
-  if (size <= 8) {
-    // small size => cheap swaps
-    for (size_t i = 1; i < nmemb; i++)
-      for (size_t j = i; j > 0 && cmp(array[j - 1], array[j]) > 0; j--)
-        swap(array[j], array[j-1]);
-  }
-  else {
-    type temp;
-    for (size_t i = 1, j; i < nmemb; i++) {
-      for (j = i; j > 0 && cmp(array[j-1], array[i]) > 0; j--) ;
-      if (j != i) {
-        copy(temp, array[i]);
-        for (; j > 0 && cmp(array[j-1], temp) > 0; j--) ;
-        fcopy(array[j], array[j-1], size * (i-(j-1)));
-        copy(array[j], temp);
-      }
-    }
-  }
+  for (size_t i = 1; i < nmemb; i++)
+    for (size_t j = i; j > 0 && cmp(array[j - 1], array[j]) > 0; j--)
+      swap(array[j], array[j-1]);
 }
 
 void my_qsort(void *base, size_t nmemb, size_t size,
