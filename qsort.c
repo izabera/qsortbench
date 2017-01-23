@@ -15,6 +15,7 @@ void illumos_qsort(void *base, size_t nmemb, size_t size, int (*compar)(const vo
 void   klibc_qsort(void *base, size_t nmemb, size_t size, int (*compar)(const void *, const void *));
 void    musl_qsort(void *base, size_t nmemb, size_t size, int (*compar)(const void *, const void *));
 void      my_qsort(void *base, size_t nmemb, size_t size, int (*compar)(const void *, const void *));
+void    mini_qsort(void *base, size_t nmemb, size_t size, int (*compar)(const void *, const void *));
 void   plan9_qsort(void *base, size_t nmemb, size_t size, int (*compar)(const void *, const void *));
 void  uclibc_qsort(void *base, size_t nmemb, size_t size, int (*compar)(const void *, const void *));
 void  sortix_qsort(void *base, size_t nmemb, size_t size, int (*compar)(const void *, const void *));
@@ -179,11 +180,12 @@ int main(int argc, char *argv[]) {
     {    wada_qsort, "wada"   , 0, 0 },
     { freebsd_qsort, "freebsd", 0, 0 },
     {   linux_qsort, "linux"  , 0, 0 },
-    /*{ reactos_qsort, "reactos", 0, 0 },*/  // quadratic time on dutch flag
-    /*{      ms_qsort, "ms"     , 0, 0 },*/  // quadratic time on even odd and dutch flag
-    /*{  sortix_qsort, "sortix" , 0, 0 },*/  // quadratic time on triangle and all equal
-    /*{   klibc_qsort, "klibc"  , 0, 0 },*/  // quadratic time on 50% sorted input
+    /*{ reactos_qsort, "reactos", 0, 0 },  // quadratic time on dutch flag*/
+    /*{      ms_qsort, "ms"     , 0, 0 },  // quadratic time on even odd and dutch flag*/
+    /*{  sortix_qsort, "sortix" , 0, 0 },  // quadratic time on triangle and all equal*/
+    /*{   klibc_qsort, "klibc"  , 0, 0 },  // quadratic time on 50% sorted input*/
     {      my_qsort, "mine"   , 0, 0 },
+    {    mini_qsort, "mini"   , 0, 0 },
   };
 
   struct {

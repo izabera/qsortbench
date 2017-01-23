@@ -13,5 +13,5 @@ all: bench
 clean:
 	rm -rf *.o qsort
 
-bench: reactos.o ms.o linux.o sortix.o freebsd.o glibc.o wada.o klibc.o illumos.o uclibc.o plan9.o mine.o musl.o diet.o bsd.o qsort.c Makefile
+bench: reactos.o ms.o linux.o sortix.o freebsd.o glibc.o wada.o klibc.o illumos.o uclibc.o plan9.o mine.o mini.o musl.o diet.o bsd.o qsort.c Makefile
 	$(CC) $(CFLAGS) $(LDFLAGS) qsort.c *.o -o qsort
