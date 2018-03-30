@@ -95,6 +95,7 @@ void fifty_percent(uint32_t *array, size_t nums) {
   pcg32_random_t r;
   memcpy(&r, &start, sizeof(pcg32_random_t));
   for (size_t i = 0; i < nums/2; i++) array[2*i] = i, array[2*i+1] = pcg32_random_r(&r);
+  if (nums % 2) array[nums - 1] = nums / 2;
 }
 
 void triangle(uint32_t *array, size_t nums) {
