@@ -9,6 +9,7 @@
 
 
 
+void     bsort_qsort(void *base, size_t nmemb, size_t size, int (*compar)(const void *, const void *));
 void     bsd_qsort(void *base, size_t nmemb, size_t size, int (*compar)(const void *, const void *));
 void    diet_qsort(void *base, size_t nmemb, size_t size, int (*compar)(const void *, const void *));
 void illumos_qsort(void *base, size_t nmemb, size_t size, int (*compar)(const void *, const void *));
@@ -173,6 +174,7 @@ int main(int argc, char *argv[]) {
     {   glibc_qsort, "glibc"  , 0, 0 },
     {    musl_qsort, "musl"   , 0, 0 },
     {    diet_qsort, "diet"   , 0, 0 },
+    {   bsort_qsort, "bsort"  , 0, 0 },
     {     bsd_qsort, "bsd"    , 0, 0 },
     {  uclibc_qsort, "uclibc" , 0, 0 },
     {   plan9_qsort, "plan9"  , 0, 0 },
