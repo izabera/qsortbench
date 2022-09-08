@@ -58,7 +58,7 @@ size_t partition(unsigned char* base,
 	return store_index;
 }
 
-void qsort_r(void* base_ptr,
+static void _qsort_r(void* base_ptr,
              size_t num_elements,
              size_t element_size,
              int (*compare)(const void*, const void*, void*),
@@ -73,10 +73,10 @@ void qsort_r(void* base_ptr,
 	pivot_index = partition(base, element_size, num_elements, pivot_index, compare, arg);
 
 	if ( 2 <= pivot_index )
-		qsort_r(base, pivot_index, element_size, compare, arg);
+		_qsort_r(base, pivot_index, element_size, compare, arg);
 
 	if ( 2 <= num_elements - (pivot_index + 1) )
-		qsort_r(array_index(base, element_size, pivot_index + 1),
+		_qsort_r(array_index(base, element_size, pivot_index + 1),
 		        num_elements - (pivot_index + 1), element_size, compare, arg);
 }
 
@@ -90,5 +90,5 @@ void sortix_qsort(void* base_ptr,
            size_t element_size,
            int (*compare)(const void*, const void*))
 {
-	qsort_r(base_ptr, num_elements, element_size, compare_wrapper, (void*) compare);
+	_qsort_r(base_ptr, num_elements, element_size, compare_wrapper, (void*) compare);
 }
