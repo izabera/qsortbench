@@ -1,6 +1,9 @@
 #!/bin/bash
-for f in linux freebsd glibc wada klibc illumos uclibc plan9 mine musl diet bsd; do
-  gcc -flto -Ofast -march=native "-D${f}_qsort=qsort" "$f.c" killer/aqsort.c -o aqsort >/dev/null 2>&1
+if [ "${CC}" = "" ]; then
+CC="gcc"
+fi
+for f in bsort linux freebsd glibc wada klibc illumos uclibc plan9 mine musl diet bsd; do
+  ${CC} -flto -Ofast -march=native "-D${f}_qsort=qsort" "$f.c" killer/aqsort.c -o aqsort >/dev/null 2>&1
   echo "$f"
   timeout 5 bash -c 'for (( i = 5; i < 20; i++ )) do
     ./aqsort "$(( 2 ** i ))"
