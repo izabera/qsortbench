@@ -2,7 +2,9 @@
 typedef int (*__compar_d_fn_t) (const void *, const void *, void *);
 typedef int (*__compar_fn_t) (const void *, const void *);
 #include <limits.h>
+#ifndef __FreeBSD__
 #include <alloca.h>
+#endif
 #define __mempcpy mempcpy
 #define __alloca alloca
 #define __sysconf sysconf
@@ -29,7 +31,9 @@ typedef int (*__compar_fn_t) (const void *, const void *);
    License along with the GNU C Library; if not, see
    <http://www.gnu.org/licenses/>.  */
 
+#ifndef __FreeBSD__
 #include <alloca.h>
+#endif
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
